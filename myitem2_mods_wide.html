@@ -1,0 +1,773 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+ <head>
+  <title>Poe Price Info - Path of Exile Item Price Check</title>
+  <meta name="description" content="A simple tool to price check you item with items in path of exile trading shops by copy and paste">
+  <meta name="keywords" content="path of exile">
+  <meta name="keywords" content="price check">
+  <link rel="icon" type="image/png" href="/css/icon2.png">
+  <link rel="stylesheet" type="text/css" href="/css/item_server_wide.css?{{random}}" />
+<script src="/css/jquery.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<script>
+console.clear();
+
+function setOriginalSelect ($select) {
+    if ($select.data("originalHTML") == undefined) {
+        $select.data("originalHTML", $select.html());
+    } // If it's already there, don't re-set it
+}
+
+function removeOptions ($select, $options) {
+    setOriginalSelect($select);
+    $options.remove();
+}
+
+function restoreOptions ($select) {
+    var ogHTML = $select.data("originalHTML");
+    if (ogHTML != undefined) {
+        $select.html(ogHTML);
+    }
+}
+
+var $testSelect = $('#builds');
+
+function NewAuto() {
+    var availableTags = [{{mods}}];
+    $('input[name*=tags]').autocomplete({
+        source: function(requestObj, responseFunc) {
+            var matchArry = availableTags.slice(); // Copy the array
+            var srchTerms = $.trim(requestObj.term).split(/\s+/);
+            // For each search term, remove non-matches.
+            $.each(srchTerms, function(J, term) {
+                var regX = new RegExp(term, "i");
+                matchArry = $.map(matchArry, function(item) {
+                    return regX.test(item) ? item : null;
+                });
+            });
+            // Return the match results.
+            responseFunc(matchArry);
+        },
+        open: function(event, ui) {
+            // This function provides no hooks to the results list, so we have to trust the selector, for now.
+            var resultsList = $("ul.ui-autocomplete > li.ui-menu-item > a");
+            var srchTerm = $.trim($('input[name*=tags]').val()).split(/\s+/).join('|');
+            // Loop through the results list and highlight the terms.
+            resultsList.each(function() {
+                var jThis = $(this);
+                var regX = new RegExp('(' + srchTerm + ')', "ig");
+                var oldTxt = jThis.text();
+                jThis.html(oldTxt.replace(regX, '<span class="srchHilite">$1</span>'));
+            });
+        }
+    });
+};
+
+function insRow()
+{
+    var x=document.getElementById('tbody');
+    var tableRows = x.getElementsByTagName('tr');
+    var rowCount = tableRows.length;
+
+    var y=document.getElementById('row_template');
+    var new_row = y.rows[0].cloneNode(true);
+
+    //added key
+    var inp = new_row.cells[2];
+    inp.innerHTML = '<p><div><label for="tags"></label>' +
+                    '<input type="text" name="tags" class="textbox" style="width: 400px;" /></div></p>'
+
+    //min, max, delete
+    var inp = new_row.cells[3];
+    inp.innerHTML = '<p><input class="textbox" type="text" onClick="this.select();" name="mintag" placeholder="min">' +
+                '<input class="textbox" type="text" onClick="this.select();" name="maxtag" placeholder="max">' +
+                '<input type="button" value="x" onClick="deleteRow(' + String(rowCount) + ');"></p>';
+
+    new_row.id = String(rowCount);
+
+    x.appendChild( new_row );
+
+    NewAuto();
+};
+
+function deleteRow(rowid) {
+    //document.getElementById('tbody').deleteRow(row);
+    var elem = document.getElementById(rowid);
+    elem.parentNode.removeChild(elem);
+};
+
+$(document).on('change', '#selectclass', function() {
+  var myval = this.value
+  //alert( $('#builds option[value="' + myval + '"]').text() );
+
+  if (myval == 'Marauder')
+      { $("#buildimage").attr("src","/css/Marauder_avatar.png")}
+  else if (myval == 'Witch')
+      { $("#buildimage").attr("src","/css/Witch_avatar.png")}
+  else if (myval == 'Ranger')
+      { $("#buildimage").attr("src","/css/Ranger_avatar.png")}
+  else if (myval == 'Templar')
+      { $("#buildimage").attr("src","/css/Templar_avatar.png")}
+  else if (myval == 'Shadow')
+      { $("#buildimage").attr("src","/css/Shadow_avatar.png")}
+  else if (myval == 'Scion')
+      { $("#buildimage").attr("src","/css/Scion_avatar.png")}
+  else if (myval == 'Duelist')
+      { $("#buildimage").attr("src","/css/Duelist_avatar.png")}
+
+  restoreOptions($('#builds'));
+
+  $('#builds option:first' ).val(myval);
+
+  var $optionsToRemove = $('#builds option[value!="' + myval + '"]');
+  removeOptions($('#builds'), $optionsToRemove);
+});
+
+$(document).ready(function() {
+
+    $('#selectclass').change();
+
+    NewAuto();
+
+});
+
+
+$(document).on('change', '#builds', function() {
+  //alert($( '#builds' ).val());
+  //alert($( '#builds' ).children(':selected').attr('id'));
+  var myWin = window.open($( '#builds' ).children(':selected').attr('id'),'_blank')
+  $("#builds")[0].selectedIndex = 0;
+  if (myWin == undefined)
+    { alert("You may need to disable popup blocker."); }
+});
+
+</script>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-71919965-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+<script type="text/javascript"> function submitformsingle() {var myshopids = document.getElementById("myshopids2").value; localStorage.ppmyshopids = myshopids; document.getElementById("submitsingle").click();}</script>
+
+ </head>
+<body onload="if (localStorage.getItem('ppleague') === null){document.getElementById('league').value = 'Standard';} else {document.getElementById('league').value=localStorage.ppleague;} if (localStorage.getItem('ppauto') === null){document.getElementById('auto').value = 'auto';} else {document.getElementById('auto').value=localStorage.ppauto; } if (localStorage.getItem('ppmyaccounts') === null){document.getElementById('myaccounts').value = '';} else {document.getElementById('myaccounts').value=localStorage.ppmyaccounts;}">
+<div style="width: 1500px; margin: 0 auto;">
+    <p><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- ad3 --><ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-2399404127652410" data-ad-slot="8703918081"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></p>
+
+<table class="wide">
+    <form action="/query" method="POST">
+    <tr>
+    <!--<tr></tr><tr><td colspan="3"><a name="pricesingleitem"></a><p class="header">Price another item</p></td></tr><tr></tr>-->
+        <td>
+            <p><a class="verified" href="/">Back to Home Page</a></p>
+            <table>
+                <tr></tr><tr>
+                    <td>
+                        Select a league
+                    </td>
+                    <td>
+                        <p class="left" onmouseup="localStorage.ppleague=document.getElementById('league').value; document.getElementById('auto2').value=document.getElementById('auto').value; localStorage.ppauto=document.getElementById('auto').value;">
+                        <span class="selectParent"><img src="/css/scroll-arrows.png" style="display: inline-block; vertical-align: middle;height=16px;width=16px;"> <select id="league" name="league">
+                        {% for lea in active_leagues %}
+                            <option value="{{lea}}">{{lea}}</option>
+                        {% endfor %}
+                        </select> <select id="auto" name="auto"><option value="auto" selected="selected">auto</option><option value="manual">manual</option></select></span>
+                    </td>
+                </tr>
+
+                <tr></tr><tr>
+                    <td>
+                        Select account names to ignore <br>
+                        (comma separated)
+                    </td>
+                    <td>
+                        <input class="shopid" type="text" onClick="this.select();" id="myaccounts" name="myaccounts" placeholder="Optional (e.g.: abc, chris)" onchange="localStorage.ppmyaccounts = this.value;">
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td>
+                        <textarea id="tags" onClick="this.select();" spellcheck="false" name="itemtext" rows="6" style="color:#585858;background-color: #1a1b18;border:solid #e2d2f7 1px;resize: none;overflow: auto; width:500px;" placeholder="Price another item"></textarea>
+                    </td>
+                    <td>
+                        <input class="firstpageButtonHuge" id="submitsingle" type="submit" name="submit" value="Submit" onClick="submitformsingle();">
+                    </td>
+                </tr>
+
+            </table>
+            <!--<input class="firstpageButton" type="reset" value="Reset">-->
+        </td>
+    </tr>
+    <input style="display:none;" class="shopid" type="text" id="myshopids2" name="myshops">
+    </form>
+</table>
+<br/><br/>
+
+<!--Machine learning result    -->
+{% if 'price_dict_aipoe' in item and item['price_dict_aipoe'].get('use_aipoe', 0) and item.get('item_type', '') == 'Rare' %}
+    {% if not item.get('reprice', 0) %}
+        {% set price = item.get('price_dict_aipoe', {}) %}
+        <table class="wide">
+            <tr></tr>
+            <tr>
+                <td>
+                    <table class="price_wide">
+                        <tr>
+                            <td height="57%" colspan="2">
+                                <p><span style="color: #af4f13;font-size: 20px">Machine Learning Prediction</span> <sup><font color="yellow">(beta)</font></sup></p>
+                            </td>
+                        </tr>
+                       {% if 'min' in price and 'max' in price and 'min_exa' not in price %}
+                           <tr class="price_tr">
+                               <td class="price_highlight">{{"%.1f" % price['min']}} ~ {{"%.1f" % price['max']}}</td>
+                               <td class="price_highlight">chaos</td>
+                           </tr>
+                       {% elif 'min_exa' in price and 'max_exa' in price %}
+                           <tr class="price_tr">
+                               <td class="price_highlight">{{"%.1f" % price['min_exa']}} ~ {{"%.1f" % price['max_exa']}}</td>
+                               <td class="price_highlight">exalted</td>
+                           </tr>
+                       {% endif %}
+                    </table>
+                </td>
+                <td>
+                    <table class="price_wide">
+                        <tr></tr>
+                        <tr class="price_tr">
+                           <td style="height:141px">
+                               <p>
+                                   <span class="pseudo">You think the predicted price range is ?</span>
+                                   <sup><a title="Based on new machine learning (ML) algorithms &#13;Please help us improve by sending us comment below" style="color:yellow;">(help)</a></sup><br/>
+                                   <br/><br/>
+                                        <form id="sendfeedback" method="post">
+
+                                        <p>
+                                            <input type="radio" id="low" name="selector" value="low">
+                                            <label for="low"><span></span><font color="green" size="4pt">Low</font></label>
+
+                                            <input type="radio" id="fair" name="selector" value="fair">
+                                            <label for="fair"><span></span><font color="green" size="4pt">Fair</font></label>
+
+                                            <input type="radio" id="high" name="selector" value="high">
+                                            <label for="high"><span></span><font color="green" size="4pt">High</font></label>
+                                        </p>
+                                        <br/>
+                                        <p>
+                                            <a href="https://www.patreon.com/poeprices" target="_blank">(Read more about our ML effort)</a>
+                                        </p>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td>
+                    <table class="price_wide">
+                        <tr class="price_tr">
+                            <td colspan="2">
+                                <p>
+                                    <textarea spellcheck="false" maxlength="1000" name="feedbacktext" rows="4" cols="60" style="color:#585858;background-color: #1a1b18;border:solid #e2d2f7 1px;resize: none;overflow: auto;" placeholder="write any comment (<1000 characters)"></textarea>
+                                </p>
+                                <textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>
+                                <p>
+                                    <input class="firstpageButtonHalfHuge" type="submit" onclick="checkradiobutton();" value="Comment" id="sendfeedbackbutton" name="feedbackbutton">
+                                </p>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+{% endif %}
+
+<form action="/reprice" method="POST">
+<table class="wide">
+
+    <input type="submit" class="myHiddenButton" name="submit" value="PriceMe"> <!-- for default submit button, when hit enter -->
+
+    <tr>
+        <td class="item-wide" valign="top">
+
+              <!--<p class="green">My Item in {{league}}</p>-->
+
+              <!-- PROPERTIES -->
+              <!--
+              {% for property in item['properties'] %}
+              <p>
+                  <span class="bold">{{ property }}</span>: {{ item['properties'][property] }}
+              </p>
+              {% endfor %}-->
+              <table class="myitem_tb">
+              <tr class="myitem_tr">
+                  <td class="myitem_td_head"></td>
+                  <td class="myitem_td_head"></td>
+                  <td class="myitem_td_right">
+                      <p class="{{ item['item_type'].lower() }}">{{ item['name'] }}</p>
+                      <p>{{ item['item_base'] }}</p>
+                      {% if item['corrupted'] == True %}
+                      <p class="red">Corrupted</p>
+                      {% endif %}
+                  </td>
+                  <td class="myitem_td_right"></td>
+              </tr>
+              <!-- Calculated properties-->
+              {% for property in item['properties_decomp'] %}
+                  <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                  <td class="myitem_td_left"><p><span class="bold">{{ property }}</span>: {{ item['properties_decomp'][property] }}</p></td>
+
+                  {% if property in qitem_features['properties_decomp'] %}
+                    <td class="myitem_td_right">
+                     <p>
+                      {%if qitem_features['properties_decomp'][property+'_checked'] %}
+                      <input class="mycheckbox" type="checkbox" name="{{property+'_checked'}}" value="1" checked>
+                      {% else %}
+                      <input class="mycheckbox" type="checkbox" name="{{property+'_checked'}}" value="0">
+                      {% endif %}
+                       <input id="textbox" type="text" onClick="this.select();" name="{{property+'_min'}}" value={{'%.2f' % qitem_features['properties_decomp'][property+"_min"]}}>
+                       <input id="textbox" type="text" onClick="this.select();" name="{{property+'_max'}}" value={{'%.2f' % qitem_features['properties_decomp'][property+"_max"]}}>
+                     </p>
+                    </td>
+                  {% else %}
+                    <td class="myitem_td_right"><input id="textbox" type="text" onClick="this.select();" name="dummy" style="display:none;"></td>
+                  {% endif %}
+                  </tr>
+              {% endfor %}
+
+              <!-- REQUIREMENTS -->
+              {% for requirement in item['requirements'] %}
+                 <tr class="myitem_tr">
+                   <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                   <td class="myitem_td_left">
+                     <p><span class="bold">Required {{ requirement }}</span>: {{ item['requirements'][requirement] }}</p>
+                   </td>
+                   <!--<td class="myitem_td_right">-->
+                   <!--</td>-->
+                   {% if 'Required_'+requirement in qitem_features['properties_decomp'] %}
+                    <td class="myitem_td_right">
+                     <p>
+                      {%if qitem_features['properties_decomp']['Required_'+requirement+'_checked'] %}
+                      <input class="mycheckbox" type="checkbox" name="{{'Required_'+requirement+'_checked'}}" value="1" checked>
+                      {% else %}
+                      <input class="mycheckbox" type="checkbox" name="{{'Required_'+requirement+'_checked'}}" value="0">
+                      {% endif %}
+                       <input id="textbox" type="text" onClick="this.select();" name="{{'Required_'+requirement+'_min'}}" value={{'%.2f' % qitem_features['properties_decomp']['Required_'+requirement+"_min"]}}>
+                       <input id="textbox" type="text" onClick="this.select();" name="{{'Required_'+requirement+'_max'}}" value={{'%.2f' % qitem_features['properties_decomp']['Required_'+requirement+"_max"]}}>
+                     </p>
+                    </td>
+                  {% else %}
+                    <td class="myitem_td_right"><input id="textbox" type="text" onClick="this.select();" name="dummy" style="display:none;"></td>
+                  {% endif %}
+                 </tr>
+              {% endfor %}
+
+              <!-- SOCKETS -->
+              {% if 'sockets' in item and item['sockets'] %}
+              <tr class="myitem_tr">
+                <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                <td class="myitem_td_left">
+                  <p>
+                   <span class="bold">Sockets</span>:
+                   {% for s in item['sockets'] %}
+                   {% if s == 'R' %}
+                   <span class="red">{{ s }}</span>
+                   {% elif s == 'G' %}
+                   <span class="green">{{ s }}</span>
+                   {% elif s == 'B' %}
+                   <span class="blue">{{ s }}</span>
+                   {% elif s == 'W' %}
+                   <span class="white">{{ s }}</span>
+                   {% elif s == ' ' %}
+                   <span class="socket-separator"></span>
+                   {% else %}
+                   <span>{{ s }}</span>
+                   {% endif %}
+                   {% endfor %}
+                     <span>  Links: </span>
+                  </p>
+                </td>
+                <td class="myitem_td_right">
+                  <p>
+                     {% if 'links_checked' in qitem_features and qitem_features['links_checked']%}
+                            <input class="mycheckbox" type="checkbox" name="links_checked" value="1" checked>
+                     {% else %}
+                            <input class="mycheckbox" type="checkbox" name="links_checked" value="0" >
+                     {% endif %}
+                     <input id="textbox" type="text" onClick="this.select();" name="links_min" value={{qitem_features['links_min']}}>
+                     <input id="textbox" type="text" onClick="this.select();" name="links_max" value={{qitem_features['links_max']}}>
+                  </p>
+                 </td>
+              </tr>
+              {% endif %}
+
+              <!-- ilvl -->
+              {% if 'Itemlevel' in item %}
+                  <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left">
+                        <p>
+                            <span>ilvl: {{ item['Itemlevel'] }}</span>
+                        </p>
+                  </td><td class="myitem_td_right"></td></tr>
+              {% endif %}
+
+              <!-- IMPLICIT MODS -->
+              {%if item['implicit_mods'] %}
+                <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><hr style="width: 70%;"/></td><td class="myitem_td_right"></td></tr>
+              {% set i=0 %}
+              {% for mod in item['implicit_mods'] %}
+                  {% set maxrollkey = item['implicit_mods_nonum'][i] + '_implicit_maxroll' %}
+                  {% set maxrollkey_minus_1 = item['implicit_mods_nonum'][i] + '_implicit_max_minus_1_roll' %}
+                  {% set legacyrollkey = item['implicit_mods_nonum'][i] + '_implicit_legacyroll' %}
+              <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                <td class="myitem_td_left">
+                    <p>
+                        {% if maxrollkey in item %}
+                            <span>{{ mod }} <font color="red"> (max)</font></span>
+                        {% elif maxrollkey_minus_1 in item %}
+                            <span>{{ mod }} <font color="red"> (max-1)</font></span>
+                        {% elif legacyrollkey in item %}
+                            <span>{{ mod }} <font color="red"> (legacy)</font></span>
+                        {% else %}
+                            <span>{{ mod }}</span>
+                        {% endif %}
+                    </p>
+                </td>
+                <td class="myitem_td_right">
+                  <p>
+                  {% if qitem_features['implicit_mods_decomp'] and item['implicit_mods_nonum'][i] in qitem_features['implicit_mods_decomp'] %}
+                   {% if item['implicit_mods_nonum'][i]+'_checked' in qitem_features['implicit_mods_decomp'] and qitem_features['implicit_mods_decomp'][item['implicit_mods_nonum'][i]+'_checked'] %}
+                        <input class="mycheckbox" type="checkbox" name="{{item['implicit_mods_nonum'][i]+'_checked'}}" value="1" checked>
+                   {% else %}
+                        <input class="mycheckbox" type="checkbox" name="{{item['implicit_mods_nonum'][i]+'_checked'}}" value="0">
+                   {% endif %}
+                   <input id="textbox" type="text" onClick="this.select();" name="{{item['implicit_mods_nonum'][i]+'_min'}}" value={{'%.2f' % qitem_features['implicit_mods_decomp'][item['implicit_mods_nonum'][i]+"_min"]}}>
+                   <input id="textbox" type="text" onClick="this.select();" name="{{item['implicit_mods_nonum'][i]+'_max'}}" value={{'%.2f' % qitem_features['implicit_mods_decomp'][item['implicit_mods_nonum'][i]+"_max"]}}>
+                   {% endif %}
+                  </p>
+                </td>
+                 {% set i=i+1 %}
+                </tr>
+              {% endfor %}
+              {%endif%}
+
+               <!-- EXPLICIT MODS -->
+              {%if item['explicit_mods'] %}
+               <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><hr style="width: 70%;" /></td><td class="myitem_td_right"></td></tr>
+              {% set i=0 %}
+              {% for mod in item['explicit_mods'] %}
+
+                  {% set maxrollkey = item['explicit_mods_nonum'][i] + '_explicit_maxroll' %}
+                  {% set maxrollkey_minus_1 = item['explicit_mods_nonum'][i] + '_explicit_max_minus_1_roll' %}
+                  {% set legacyrollkey = item['explicit_mods_nonum'][i] + '_explicit_legacyroll' %}
+                  {%set tiertag = '' %}
+                  {%set presuf = '' %}
+                  {% if 'qmods_tiers' in item and item['qmods_tiers']%}
+                    {% set tiertag = item['qmods_tiers'][0][0][i][3] %}
+                    {% set presuf = item['qmods_tiers'][0][0][i][2] %}
+                  {% endif %}
+
+               <tr class="myitem_tr">
+                    {% if presuf == "Prefix" %}
+                        <td class="myitem_td_head"><p><span class="chaos">{{presuf}} </span></p></td>
+                        <td class="myitem_td_head"><p><span class="chaos">{{tiertag}}</span></p></td>
+                    {% elif presuf == "Suffix" %}
+                        <td class="myitem_td_head"><p><span class="life">{{presuf}} </span></p></td>
+                        <td class="myitem_td_head"><p><span class="life">{{tiertag}}</span></p></td>
+                    {% else %}
+                        <td class="myitem_td_head"><p><span >{{presuf}} </span></p></td>
+                        <td class="myitem_td_head"><p><span>{{tiertag}}</span></p></td>
+                    {% endif %}
+
+                 <td class="myitem_td_left">
+                 <p>
+                    {% if maxrollkey in item %}
+                        <span>{{ mod }} <font color="red"> (max)</font></span>
+                    {% elif maxrollkey_minus_1 in item %}
+                        <span>{{ mod }} <font color="red"> (max-1)</font></span>
+                    {% elif legacyrollkey in item %}
+                        <span>{{ mod }} <font color="green"> (legacy)</font></span>
+                    {% else %}
+                        <span>{{ mod }}</span>
+                    {% endif %}
+                 </p>
+                 </td>
+
+                 <td class="myitem_td_right">
+                  <p>
+                  {% if qitem_features['explicit_mods_decomp'] and item['explicit_mods_nonum'][i] in qitem_features['explicit_mods_decomp'] %}
+                   {% if qitem_features['explicit_mods_decomp'][item['explicit_mods_nonum'][i]+'_checked'] %}
+                        <input class="mycheckbox" type="checkbox" name="{{item['explicit_mods_nonum'][i]+'_checked'}}" value="1" checked>
+                   {% else %}
+                        <input class="mycheckbox" type="checkbox" name="{{item['explicit_mods_nonum'][i]+'_checked'}}" value="0">
+                   {% endif %}
+                   <input id="textbox" type="text" onClick="this.select();" name="{{item['explicit_mods_nonum'][i]+'_min'}}" value={{'%.2f' % qitem_features['explicit_mods_decomp'][item['explicit_mods_nonum'][i]+"_min"]}}>
+                   <input id="textbox" type="text" onClick="this.select();" name="{{item['explicit_mods_nonum'][i]+'_max'}}" value={{'%.2f' % qitem_features['explicit_mods_decomp'][item['explicit_mods_nonum'][i]+"_max"]}}>
+                  {% endif %}
+                  </p>
+                 </td>
+                  {% set i=i+1 %}
+              </tr>
+              {% endfor %}
+              {%endif%}
+
+              <!-- Crafted MODS -->
+              {%if 'crafted_mods' in item and item['crafted_mods'] %}
+                <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><hr style="width: 70%;"/></td><td class="myitem_td_right"></td></tr>
+                  {% set i=0 %}
+                  {% for mod in item['crafted_mods'] %}
+                      <tr class="myitem_tr">
+                            <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                            <td class="myitem_td_left">
+                            <p><span>{{ '(crafted) ' + mod }}</span></p>
+                            </td>
+
+                      <td class="myitem_td_right">
+                      <p>
+                      {% if qitem_features['explicit_mods_decomp'] and item['crafted_mods_nonum'][i] in qitem_features['explicit_mods_decomp'] %}
+                       {% if qitem_features['explicit_mods_decomp'][item['crafted_mods_nonum'][i]+'_checked'] %}
+                            <input class="mycheckbox" type="checkbox" name="{{item['crafted_mods_nonum'][i]+'_checked'}}" value="1" checked>
+                       {% else %}
+                            <input class="mycheckbox" type="checkbox" name="{{item['crafted_mods_nonum'][i]+'_checked'}}" value="0">
+                       {% endif %}
+                       <input id="textbox" type="text" onClick="this.select();" name="{{item['crafted_mods_nonum'][i]+'_min'}}" value={{'%.2f' % qitem_features['explicit_mods_decomp'][item['crafted_mods_nonum'][i]+"_min"]}}>
+                       <input id="textbox" type="text" onClick="this.select();" name="{{item['crafted_mods_nonum'][i]+'_max'}}" value={{'%.2f' % qitem_features['explicit_mods_decomp'][item['crafted_mods_nonum'][i]+"_max"]}}>
+                      {% endif %}
+                      </p>
+                     </td>
+                  {% set i=i+1 %}
+                </tr>
+                {% endfor %}
+              {%endif%}
+
+              <!-- shaped or elder items -->
+              {%if 'shaped' in item and item['shaped'] %}
+                <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><p><span>Shaped Item</span></p></td><td class="myitem_td_right"></td></tr>
+              {% endif %}
+              {%if 'elder' in item and item['elder'] %}
+                <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><p><span>Elder Item</span></p></td><td class="myitem_td_right"></td></tr>
+              {% endif %}
+
+            </table>
+
+            {% if 'item_type' in item and item['item_type'] == 'Rare' %}
+                <table class="myitem_tb" id="tbody">
+                    <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"><hr style="width: 70%;"/></td><td class="myitem_td_right"></td></tr>
+                    {% for addedmod in qitem_features['addedMods'] %}
+                        <tr class="myitem_tr" id="{{addedmod[3]}}">
+                            <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                            <td class="myitem_td_left">
+                            <div>
+                                <label for="tags">
+
+                                </label>
+                                <p><input type="text" name="tags" class="textbox" style="width: 400px;" value="{{addedmod[0]}}"/></p>
+                            </div>
+                            </td>
+
+                            <td class="myitem_td_right">
+                                <p>
+                                <input class="textbox" type="text" onClick="this.select();" name="mintag" placeholder="min" value="{{addedmod[1]}}">
+                                <input class="textbox" type="text" onClick="this.select();" name="maxtag" placeholder="max" value="{{addedmod[2]}}">
+                                <input type="button" value="x" onclick="deleteRow({{addedmod[3]}});"></p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+
+                <table>
+                    <tr class="myitem_tr">
+                        <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                        <td class="myitem_td_left">
+                            <p>
+                                <input type="button" class="myButton" value="Add mod" onclick="insRow();">
+                                <input type="submit" class="myButton" name="submit" value="PriceMe">
+                            </p>
+                            <br/>
+                            <!--<p>-->
+                                <!--<font color="red">Change the checked mods and values <br/> to make better estimation.</font>-->
+                            <!--</p>-->
+                        </td>
+                        <td class="myitem_td_right"></td>
+                    </tr>
+                </table>
+            {%elif 'item_type' in item and item['item_type'] != 'Unknown'%}
+                     <table>
+                        <tr class="myitem_tr">
+                            <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                            <td class="myitem_td_left">
+                                <p>
+                                    <input type="submit" class="myButton" name="submit" value="PriceMe">
+                                </p>
+                                <br/>
+                                <!--<p>-->
+                                    <!--<font color="red">Change the checked mods and values <br/> to make better estimation.</font>-->
+                                <!--</p>-->
+                            </td>
+                            <td class="myitem_td_right"></td>
+                        </tr>
+                    </table>
+            {%endif%}
+
+            <table style="display:none;" id="row_template">
+                <tr class="myitem_tr">
+                    <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                    <td class="myitem_td_left">
+                    <p><div>
+                        <label for="tags">
+
+                        </label>
+                        <input type="text" name="tags" class="textbox" style="width: 400px;" />
+                      </div></p>
+                    </td>
+
+                    <td class="myitem_td_right">
+                        <input class="textbox" type="text" onClick="this.select();" name="mintag" placeholder="min">
+                        <input class="textbox" type="text" onClick="this.select();" name="maxtag" placeholder="max">
+                        <input type="button" value="x">
+                    </td>
+              </tr>
+            </table>
+
+        </td>
+
+        <td class="item-wide" valign="top">
+            <table class="myitem_tb">
+                <!-- PSEUDO MODS -->
+              {% if 'pseudo_mods' in item and item['pseudo_mods'] %}
+                  <tr class="myitem_tr"><td class="myitem_td_head"></td><td class="myitem_td_head"></td><td class="myitem_td_left"></td><td class="myitem_td_right"></td></tr>
+                  {% set i=0 %}
+                  {% for key in item['pseudo_mods_decomp'] %}
+                     {% if item['pseudo_mods_decomp'][key] %}
+                     <tr class="myitem_tr">
+                         <td class="myitem_td_head"></td><td class="myitem_td_head"></td>
+                         <td class="myitem_td_left">
+                            <!--<p><span class="pseudo">{{key}}</span></p>-->
+                            <!--<p><span class="pseudo">{{ item['pseudo_mods'][i] }}</span></p>-->
+                            <p class="left"><span class="pseudo">{{ key|replace("#", item['pseudo_mods_decomp'][key]) }}</span></p>
+                         </td>
+                         <td class="myitem_td_right">
+                           <p>
+                           {% if qitem_features['pseudo_mods_decomp'] %}
+                             {% if qitem_features['pseudo_mods_decomp'][key+'_checked']%}
+                                    <input class="mycheckbox" type="checkbox" name="{{key+'_checked'}}" value="1" checked>
+                             {% else %}
+                                    <input class="mycheckbox" type="checkbox" name="{{key+'_checked'}}" value="0" >
+                             {% endif %}
+                             <input id="textbox" type="text" onClick="this.select();" name="{{key+'_min'}}" value={{'%.2f' % qitem_features['pseudo_mods_decomp'][key+'_min']}}>
+                             <input id="textbox" type="text" onClick="this.select();" name="{{key+'_max'}}" value={{'%.2f' % qitem_features['pseudo_mods_decomp'][key+'_max']}}>
+                           {% endif %}
+                           </p>
+                         </td>
+                      </tr>
+                     {% endif %}
+                  {% set i=i+1 %}
+                  {% endfor %}
+              {%endif%}
+
+            </table>
+
+            <p>
+                  {%if qitem_features['buyout_checked'] %}
+                    <input class="mycheckbox" type="checkbox" name="buyout_checked" value="1" checked>
+                  {% else %}
+                    <input class="mycheckbox" type="checkbox" name="buyout_checked" value="0">
+                  {% endif %}
+                  Buyout
+
+                  &nbsp;
+
+                  {% if 'corrupted_checked' in qitem_features and qitem_features['corrupted_checked'] %}
+                    <input class="mycheckbox" type="checkbox" name="corrupted_checked" value="1" checked>
+                  {% else %}
+                     <input class="mycheckbox" type="checkbox" name="corrupted_checked" value="0">
+                  {% endif %}<span class="red">Corrupted</span>
+
+                  &nbsp;
+
+                  {% if 'last_seen_checked' in qitem_features and qitem_features['last_seen_checked'] %}
+                    <input class="mycheckbox" type="checkbox" name="last_seen_checked" value="1" checked>
+                  {% else %}
+                     <input class="mycheckbox" type="checkbox" name="last_seen_checked" value="0">
+                  {% endif %}
+                  Added in
+                  <input id="textbox" type="text" onClick="this.select();" name="last_seen" value={{qitem_features['last_seen']}}> weeks
+            </p>
+
+            <textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>
+            <textarea cols="20" rows="20" style="display:none;" name="qitem_features_txt">{{qitem_features_txt}}</textarea>
+            <textarea cols="10" rows="1" style="display:none;" name="league">{{league}}</textarea>
+
+            </form>
+            <br/>
+            <table align="center" style="width:80%;">
+                <tr></tr>
+                <tr>
+                    <td>
+                        <p><span>Please support us by</span></p>
+                        <p><span style="color:yellow;">Unblock Ads Blockers</span></p>
+                    </td>
+                    <td>
+                        <p>
+                            <a href="https://www.patreon.com/bePatron?u=5966037">
+                                <img src="/css/become_a_patron_button.png" style="width: 80%; height: 80%"/>
+                            </a>
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                            <input type="hidden" name="cmd" value="_s-xclick">
+                            <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+                            ">
+                            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!"  style="display: block; margin: 0 auto;">
+                            <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                            </form>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+            <table align="center">
+                <tr>
+                    <td>
+                        <p>
+                            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                            <!-- query_middle -->
+                            <ins class="adsbygoogle"
+                                 style="display:block"
+                                 data-ad-client="ca-pub-2399404127652410"
+                                 data-ad-slot="6811317604"
+                                 data-ad-format="auto"></ins>
+                            <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+
+    </tr>
+
+</table>
+
+<table style="width: 1400px;">
+    <tr>
+        <td width="640px;" valign="top">
+
+        </td>
+
+        <td width="640px" valign="top">
+
+

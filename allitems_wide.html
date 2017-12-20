@@ -1,0 +1,935 @@
+<!--<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>-->
+
+<script type="text/javascript"
+  src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart"]}]}'>
+</script>
+
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>-->
+
+<script type="text/javascript">
+var collapseDivs, collapseLinks;
+
+function createDocumentStructure (tagName) {
+  if (document.getElementsByTagName) {
+    var elements = document.getElementsByTagName(tagName);
+    collapseDivs = new Array(elements.length);
+    collapseLinks = new Array(elements.length);
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+      var siblingContainer;
+      if (document.createElement &&
+          (siblingContainer = document.createElement('div')) &&
+          siblingContainer.style)
+      {
+        var nextSibling = element.nextSibling;
+        element.parentNode.insertBefore(siblingContainer, nextSibling);
+        var nextElement = elements[i + 1];
+        while (nextSibling != nextElement && nextSibling != null) {
+          var toMove = nextSibling;
+          nextSibling = nextSibling.nextSibling;
+          siblingContainer.appendChild(toMove);
+        }
+        siblingContainer.style.display = 'none';
+
+        collapseDivs[i] = siblingContainer;
+
+        createCollapseLink(element, siblingContainer, i);
+      }
+      else {
+        // no dynamic creation of elements possible
+        return;
+      }
+    }
+  }
+}
+
+function createCollapseLink (element, siblingContainer, index) {
+  var span;
+  if (document.createElement && (span = document.createElement('span'))) {
+    span.appendChild(document.createTextNode(String.fromCharCode(160)));
+    var link = document.createElement('a');
+    link.collapseDiv = siblingContainer;
+    link.href = '#';
+    link.appendChild(document.createTextNode('expand'));
+    link.onclick = collapseExpandLink;
+    collapseLinks[index] = link;
+    span.appendChild(link);
+    element.appendChild(span);
+  }
+}
+
+function collapseExpandLink (evt) {
+  if (this.collapseDiv.style.display == '') {
+    this.parentNode.parentNode.nextSibling.style.display = 'none';
+    this.firstChild.nodeValue = 'expand';
+  }
+  else {
+    this.parentNode.parentNode.nextSibling.style.display = '';
+    this.firstChild.nodeValue = 'collapse';
+  }
+
+  if (evt && evt.preventDefault) {
+    evt.preventDefault();
+  }
+  return false;
+}
+
+function createCollapseExpandAll (firstElement) {
+  var div;
+  if (document.createElement && (div = document.createElement('div'))) {
+    var link = document.createElement('a');
+    link.href = '#';
+    link.appendChild(document.createTextNode('expand all'));
+    link.onclick = expandAll;
+    div.appendChild(link);
+    div.appendChild(document.createTextNode(' '));
+    link = document.createElement('a');
+    link.href = '#';
+    link.appendChild(document.createTextNode('collapse all'));
+    link.onclick = collapseAll;
+    div.appendChild(link);
+    firstElement.parentNode.insertBefore(div, firstElement);
+  }
+}
+
+function expandAll (evt) {
+  for (var i = 0; i < collapseDivs.length; i++) {
+    collapseDivs[i].style.display = '';
+    collapseLinks[i].firstChild.nodeValue = 'collapse';
+  }
+
+  if (evt && evt.preventDefault) {
+    evt.preventDefault();
+  }
+  return false;
+}
+
+function collapseAll (evt) {
+  for (var i = 0; i < collapseDivs.length; i++) {
+    collapseDivs[i].style.display = 'none';
+    collapseLinks[i].firstChild.nodeValue = 'expand';
+  }
+
+  if (evt && evt.preventDefault) {
+    evt.preventDefault();
+  }
+  return false;
+}
+
+//send feedback
+$(document).ready(function () {
+    $('#sendfeedback').on('submit', function(e) {
+
+        e.preventDefault();
+
+        if (checkradiobutton()){
+
+            var url = "/send_feedback";
+
+            $.ajax({
+                url : url,
+                type: "POST",
+                data: $("#sendfeedback").serialize(),
+                success: function (data) {
+
+                    alert(data + " Thanks for your feedback!");
+                    document.getElementById("sendfeedbackbutton").disabled = true;
+                    document.getElementById("sendfeedbackbutton").value = "";
+
+                },
+                error: function (jXHR, textStatus, errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }else{
+            alert("Please choose low, fair or high.");
+        };
+
+    });
+});
+
+//check whether the radio button is checked
+function checkradiobutton (){
+    var selector = document.getElementsByName('selector');
+    var ischecked_method = false;
+    for ( var i = 0; i < selector.length; i++) {
+        if(selector[i].checked) {
+            ischecked_method = true;
+            break;
+        }
+    }
+    return ischecked_method;
+};
+</script>
+
+<!--<script type="text/javascript">-->
+<!--window.onload = function (evt) {-->
+  <!--createDocumentStructure('h1');-->
+<!--}-->
+<!--</script>-->
+
+<!-- put the google chart code here -->
+{% if ('item_type' in item and item['item_type'] == 'Unique' or item['searchbyname']) and 'chart1' in price %}
+    {{ price['chart1'] }}
+{% endif %}
+
+            <!--<table>-->
+                <!--<tr>-->
+                    <!--<td>-->
+                        <!--{%if 'total' in price %}-->
+                           <!--&lt;!&ndash;<p><span> Found {{price['total']}} results</span></p>&ndash;&gt;-->
+                           <!--&lt;!&ndash;<p><span>Pricing based on the first 100 items if more than 100 are found</span></p>&ndash;&gt;-->
+                           <!--{% if 'price_pred_str' in price %}-->
+                                <!--<p><span class="pseudo">Recommended Price: {{price['price_pred_str']}} <a title="Based on similar items shown in the list below &#13;You can modify the search criterion above to reprice" style="color:yellow;">(help)</a></span></p>-->
+                                <!--{% if 'total' in price %}-->
+                                    <!--<p>based on {{price['total']}} similar item(s)</p>-->
+                                <!--{% endif %}-->
+                            <!--{% endif %}-->
+
+                           <!--{% if 'reprice' not in item and 'query_unique_max_roll' in item and item['query_unique_max_roll'] and item.get('item_type', '') == 'Unique'%}-->
+                           <!--<table class="price">-->
+                            <!--<tr class="price_tr">-->
+                               <!--<td class="price_highlight" colspan="2"><p>-->
+                                   <!--<span class="pseudo">You think the above price is ?</span>-->
+                                   <!--<a title="This item may have a max/max-1/legacy roll. If this is not correct, &#13;Please help us improve by sending us comment below" style="color:yellow;">(help)</a><br/>-->
+                                   <!--<br/><br/>-->
+                                <!--<form id="sendfeedback" method="post">-->
+
+                                <!--<p>-->
+
+                                        <!--<input type="radio" id="low" name="selector" value="low">-->
+                                        <!--<label for="low"><span></span><font color="green" size="4pt">Low</font></label>-->
+
+                                        <!--<input type="radio" id="fair" name="selector" value="fair">-->
+                                        <!--<label for="fair"><span></span><font color="green" size="4pt">Fair</font></label>-->
+
+                                        <!--<input type="radio" id="high" name="selector" value="high">-->
+                                        <!--<label for="high"><span></span><font color="green" size="4pt">High</font></label>-->
+
+                                <!--</p>-->
+                                <!--<br/>-->
+                                <!--<p><a href="https://www.patreon.com/posts/dealing-with-max-9914743" target="_blank">(Read more about this effort)</a></p>-->
+                                <!--<p>-->
+                                    <!--<textarea spellcheck="false" maxlength="1000" name="feedbacktext" rows="5" cols="40" style="color:#585858;background-color: #1a1b18;border:solid #20211E;resize: none;overflow: auto;" placeholder="please copy the mod here if the max value is not correct..."></textarea>-->
+                                <!--</p>-->
+                                <!--<textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>-->
+                                <!--<p><input class="firstpageButton" type="submit" onclick="checkradiobutton();" value="Comment" id="sendfeedbackbutton" name="feedbackbutton"></p>-->
+                                <!--</form>-->
+                            <!--</p>-->
+                            <!--</td></tr>-->
+                           <!--</table>-->
+                        <!--{% endif %}-->
+
+                       <!--<p><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>&lt;!&ndash; price_single_item_middle &ndash;&gt;<ins class="adsbygoogle" style="display:inline-block;width:320px;height:100px" data-ad-client="ca-pub-2399404127652410" data-ad-slot="7059835289"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></p>-->
+
+                       <!--{% if 'total' in price %}-->
+                            <!--{% if price['total'] > 5 %}-->
+                                <!--{% if 'use_aipoe' in price and price['use_aipoe'] %}-->
+                                    <!--<p>Machine learning predicts:</p>-->
+                                <!--{% else %}-->
+                                    <!--<p><span class="pseudo">with price ranging from</span></p>-->
+                                <!--{% endif %}-->
+                            <!--{% else %}-->
+                                <!--<p><span class="red">Widen the search might be needed</span></p>-->
+                                <!--{% if 'use_aipoe' in price and price['use_aipoe'] %}-->
+                                    <!--<p>Machine learning predicts:</p>-->
+                                <!--{% else %}-->
+                                    <!--<p><span class="pseudo">with price ranging from</span></p>-->
+                                <!--{% endif %}-->
+                            <!--{% endif %}-->
+                        <!--{% endif %}-->
+                       <!--{% endif %}-->
+
+                       <!--<table class="price">-->
+                       <!--{% if 'min' in price and 'max' in price and 'min_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--{% if 'reprice' in item and item['reprice'] and item.get('item_type', '') == 'Rare' %}-->
+                                   <!--<td class="price_highlight"><span style='color:red;text-decoration:line-through'>{{"%.1f" % price['min']}} ~ {{"%.1f" % price['max']}}</span></td>-->
+                                   <!--<td class="price_highlight">chaos</td>-->
+                               <!--{% else %}-->
+                                   <!--<td class="price_highlight">{{"%.1f" % price['min']}} ~ {{"%.1f" % price['max']}}</td>-->
+                                   <!--<td class="price_highlight">chaos</td>-->
+                               <!--{% endif %}-->
+                           <!--</tr>-->
+                       <!--{% elif 'min_exa' in price and 'max_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--{% if 'reprice' in item and item['reprice'] and item.get('item_type', '') == 'Rare' %}-->
+                                   <!--<td class="price_highlight"><span style='color:red;text-decoration:line-through'>{{"%.1f" % price['min_exa']}} ~ {{"%.1f" % price['max_exa']}}</span></td>-->
+                                   <!--<td class="price_highlight">exalted</td>-->
+                               <!--{% else %}-->
+                                   <!--<td class="price_highlight">{{"%.1f" % price['min_exa']}} ~ {{"%.1f" % price['max_exa']}}</td>-->
+                                   <!--<td class="price_highlight">exalted</td>-->
+                               <!--{% endif %}-->
+                           <!--</tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'reprice' not in item and 'use_aipoe' in price and price['use_aipoe'] and item.get('item_type', '') == 'Rare'%}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_highlight" colspan="2"><p>-->
+                                   <!--<span class="pseudo">You think the above price range is ?</span>-->
+                                   <!--<a title="Based on new machine learning (ML) algorithms &#13;Please help us improve by sending us comment below" style="color:yellow;">(help)</a><br/>-->
+                                   <!--<br/><br/>-->
+                                <!--<form id="sendfeedback" method="post">-->
+
+                                <!--<p>-->
+
+                                        <!--<input type="radio" id="low" name="selector" value="low">-->
+                                        <!--<label for="low"><span></span><font color="green" size="4pt">Low</font></label>-->
+
+                                        <!--<input type="radio" id="fair" name="selector" value="fair">-->
+                                        <!--<label for="fair"><span></span><font color="green" size="4pt">Fair</font></label>-->
+
+                                        <!--<input type="radio" id="high" name="selector" value="high">-->
+                                        <!--<label for="high"><span></span><font color="green" size="4pt">High</font></label>-->
+
+                                <!--</p>-->
+                                <!--<br/>-->
+                                <!--<p><a href="https://www.patreon.com/poeprices" target="_blank">(Read more about our ML effort)</a></p>-->
+                                <!--<p>-->
+                                    <!--<textarea spellcheck="false" maxlength="1000" name="feedbacktext" rows="5" cols="40" style="color:#585858;background-color: #1a1b18;border:solid #20211E;resize: none;overflow: auto;" placeholder="write any comment..."></textarea>-->
+                                <!--</p>-->
+                                <!--<textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>-->
+                                <!--<p><input class="firstpageButton" type="submit" onclick="checkradiobutton();" value="Comment" id="sendfeedbackbutton" name="feedbackbutton"></p>-->
+                                <!--</form>-->
+                            <!--</p>-->
+                            <!--</td></tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'median' in price and 'median_exa' not in price %}-->
+                           <!--<tr></tr><tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Median Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['median']}} chaos</p></td></tr><tr></tr>-->
+                       <!--{% elif 'median_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Median Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['median_exa']}} exalted</p></td></tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'avg' in price and 'avg_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Mean Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['avg']}} chaos</p></td></tr>-->
+                       <!--{% elif 'avg_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Mean Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['avg_exa']}} exalted</p></td></tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'pred' in price and 'pred_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Predicted Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['pred']}} chaos</p></td></tr>-->
+                       <!--{% endif %}-->
+                       <!--</table>-->
+
+                       <!--&lt;!&ndash;<div id="container" style="height: 200px"></div>&ndash;&gt;-->
+                       <!--&lt;!&ndash;disable chart for performance issue&ndash;&gt;-->
+                       <!--&lt;!&ndash;{% if ('item_type' in item and item['item_type'] == 'Unique' or item['searchbyname']) and 'chart1' in price %}&ndash;&gt;-->
+                           <!--&lt;!&ndash;<p id="chart_div" style="width: 480px; height: 200px;"></p>&ndash;&gt;-->
+                       <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+
+                       <!--{%if 'total_sold' in price %}-->
+                           <!--<p><hr ></p>-->
+                           <!--<p><span>{{price['total_sold']}} sold items</span></p>-->
+                       <!--{% endif %}-->
+
+                       <!--<table class="price">-->
+                        <!--{% if 'min_sold' in price and 'max_sold' in price and 'min_sold_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--{% if 'reprice' in item and item['reprice'] %}-->
+                                   <!--<td class="price_highlight"><span style='color:red;text-decoration:line-through'>{{"%.1f" % price['min_sold']}} ~ {{"%.1f" % price['max_sold']}}</span></td>-->
+                                   <!--<td class="price_highlight">chaos</td>-->
+                               <!--{% else %}-->
+                                   <!--<td class="price_highlight">{{"%.1f" % price['min_sold']}} ~ {{"%.1f" % price['max_sold']}}</td>-->
+                                   <!--<td class="price_highlight">chaos</td>-->
+                               <!--{% endif %}-->
+                           <!--</tr>-->
+                       <!--{% elif 'min_sold_exa' in price and 'max_sold_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--{% if 'reprice' in item and item['reprice'] %}-->
+                                   <!--<td class="price_highlight"><span style='color:red;text-decoration:line-through'>{{"%.1f" % price['min_sold_exa']}} ~ {{"%.1f" % price['max_sold_exa']}}</span></td>-->
+                                   <!--<td class="price_highlight">exalted</td>-->
+                               <!--{% else %}-->
+                                   <!--<td class="price_highlight">{{"%.1f" % price['min_sold_exa']}} ~ {{"%.1f" % price['max_sold_exa']}}</td>-->
+                                   <!--<td class="price_highlight">exalted</td>-->
+                               <!--{% endif %}-->
+                           <!--</tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'median_sold' in price and 'median_sold_exa' not in price %}-->
+                           <!--<tr></tr><tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Median Price</span></p></td>-->
+                           <!--<td class="price_td_right"><p> {{"%.1f" % price['median_sold']}} chaos</p></td></tr><tr></tr>-->
+                       <!--{% elif 'median_sold_exa' in price%}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Median Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['median_sold_exa']}} exalted</p></td></tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'avg_sold' in price and 'avg_sold_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Mean Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['avg_sold']}} chaos</p></td></tr>-->
+                       <!--{% elif 'avg_sold_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Mean Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['avg_sold_exa']}} exalted</p></td></tr>-->
+                       <!--{% endif %}-->
+
+                       <!--{% if 'pred_sold' in price and 'pred_sold_exa' not in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Predicted Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['pred_sold']}} chaos</p></td></tr>-->
+                       <!--{% elif 'pred_sold_exa' in price %}-->
+                           <!--<tr class="price_tr">-->
+                               <!--<td class="price_td_left"><p><span class="bold">Predicted Price</span></p></td>-->
+                               <!--<td class="price_td_right"><p> {{"%.1f" % price['pred_sold_exa']}} exalted</p></td></tr>-->
+                       <!--{% endif %}-->
+                       <!--</table>-->
+
+                       <!--&lt;!&ndash;disable chart for performance issue&ndash;&gt;-->
+                       <!--&lt;!&ndash;<table class="price">&ndash;&gt;-->
+                       <!--&lt;!&ndash;<tr class="price_tr"><td colspan="2">&ndash;&gt;-->
+                       <!--&lt;!&ndash;{% if 0 and 'chart2' in price %}&ndash;&gt;-->
+                           <!--&lt;!&ndash;<p id="chart_div2" style="width: 480px; height: 200px;"></p>&ndash;&gt;-->
+                       <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                       <!--&lt;!&ndash;</td></tr>&ndash;&gt;-->
+                       <!--&lt;!&ndash;</table>&ndash;&gt;-->
+                    <!--</td>-->
+                <!--</tr>-->
+            <!--</table>-->
+</div>
+
+<div>
+    <table class="wide">
+        <tr>
+            <td>
+                <table class="price_wide">
+                    <tr></tr>
+                    <tr>
+                        <td style="height: 100%;">
+                            {% if 'price_pred_str' in price %}
+                            <p><span style="color: #af4f13;font-size: 20px">Recommended Price </span><sup><a title="Based on similar items shown in the list below &#13;You can modify the search criterion above to reprice" style="color:yellow;">(help)</a></sup><br/><br/></p>
+                            <p><span class="price_highlight">{{price['price_pred_str']}}</span></p>
+                                <!--{% if 'total' in price %}-->
+                                    <!--<p>based on {{price['total']}} similar item(s)</p>-->
+                                <!--{% endif %}-->
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <td>
+               <table class="price_wide">
+                   <tr></tr>
+                   <tr>
+                       <td height="50%">
+                           {% if price.get('total', 0) > 5 %}
+                                <p><span class="pseudo">{{ price.get('total') }} Similar items ranging from</span></p>
+                           {% else %}
+                                <p><span class="red">Widen the search might be needed</span></p>
+                                <p><span class="pseudo">Only {{ price.get('total') }} Similar items ranging from</span></p>
+                           {% endif %}
+                       </td>
+                   </tr>
+
+                   {% if 'min' in price and 'max' in price and 'min_exa' not in price %}
+                       <tr></tr>
+                       <tr class="price_tr">
+                           <td height="50%"><p>{{"%.1f" % price['min']}} ~ {{"%.1f" % price['max']}} chaos</p></td>
+                       </tr>
+                   {% elif 'min_exa' in price and 'max_exa' in price %}
+                       <tr></tr>
+                       <tr class="price_tr">
+                           <td height="50%"><p>{{"%.1f" % price['min_exa']}} ~ {{"%.1f" % price['max_exa']}} exalted</p></td>
+                       </tr>
+                   {% endif %}
+               </table>
+           </td>
+
+           <td>
+               <table class="price_wide">
+                   {% if 'median' in price and 'median_exa' not in price %}
+                       <tr></tr><tr>
+                           <td height="50%"><p><span class="bold">Median Price</span></p></td>
+                           <td><p> {{"%.1f" % price['median']}} chaos</p></td></tr>
+                   {% elif 'median_exa' in price %}
+                        <tr></tr><tr>
+                           <td height="50%"><p><span class="bold">Median Price</span></p></td>
+                           <td><p> {{"%.1f" % price['median_exa']}} exalted</p></td></tr>
+                   {% endif %}
+
+                   {% if 'avg' in price and 'avg_exa' not in price %}
+                        <tr></tr><tr>
+                           <td height="50%"><p><span class="bold">Mean Price</span></p></td>
+                           <td><p> {{"%.1f" % price['avg']}} chaos</p></td></tr>
+                   {% elif 'avg_exa' in price %}
+                       <tr></tr><tr>
+                           <td height="50%"><p><span class="bold">Mean Price</span></p></td>
+                           <td><p> {{"%.1f" % price['avg_exa']}} exalted</p></td></tr>
+                   {% endif %}
+               </table>
+           </td>
+
+        </tr>
+    </table>
+</div>
+
+<!--Extra unique items statistics -->
+{% if (item.get('item_type', '') == 'Unique' or item['searchbyname']) and 'chart1' in price %}
+<div>
+    <table class="wide">
+
+       <tr>
+
+           <td>
+                <table class="price_wide">
+                    <tr></tr>
+                    <tr>
+                        <td style="height: 100%;">
+                            <p id="chart_div" style="width: 100%; height: 93%;"></p>
+                        </td>
+                    </tr>
+                </table>
+           <td>
+
+           <td>
+                {% if 'reprice' not in item and 'query_unique_max_roll' in item and item['query_unique_max_roll'] and item.get('item_type', '') == 'Unique'%}
+                   <table class="price_wide">
+                    <tr></tr>
+                    <tr class="price_tr">
+                       <td>
+                           <p>
+                               <span class="pseudo">You think the price is ?</span>
+                               <sup><a title="This item may have a max/max-1/legacy roll. If this is not correct, &#13;Please help us improve by sending us comment below" style="color:yellow;">(help)</a></sup><br/>
+                               <br/><br/>
+                                <form id="sendfeedback" method="post">
+
+                                <p>
+                                    <input type="radio" id="low" name="selector" value="low">
+                                    <label for="low"><span></span><font color="green" size="4pt">Low</font></label>
+
+                                    <input type="radio" id="fair" name="selector" value="fair">
+                                    <label for="fair"><span></span><font color="green" size="4pt">Fair</font></label>
+
+                                    <input type="radio" id="high" name="selector" value="high">
+                                    <label for="high"><span></span><font color="green" size="4pt">High</font></label>
+                                </p>
+                           </p>
+                           <br/>
+                            <p><a href="https://www.patreon.com/posts/dealing-with-max-9914743" target="_blank">(Read more about this effort)</a></p>
+                        </td>
+                    </tr>
+                   </table>
+                {% else %}
+                   <table class="price_wide">
+                       <tr>
+                           <td style="height: 100%;">
+
+                           </td>
+                       </tr>
+                   </table>
+                {% endif %}
+            </td>
+
+            <td>
+                {% if 'reprice' not in item and 'query_unique_max_roll' in item and item['query_unique_max_roll'] and item.get('item_type', '') == 'Unique'%}
+                    <table class="price_wide">
+                        <tr></tr>
+                        <tr class="price_tr">
+                           <td style="height: 100%;">
+                               <p>
+                                    <textarea spellcheck="false" maxlength="1000" name="feedbacktext" rows="5" cols="60" style="color:#585858;background-color: #1a1b18;border:solid #20211E;resize: none;overflow: auto;" placeholder="please copy the mod here if the max value is not correct..."></textarea>
+                                </p>
+                                <textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>
+                                <p>
+                                    <input class="firstpageButton" type="submit" onclick="checkradiobutton();" value="Comment" id="sendfeedbackbutton" name="feedbackbutton">
+                                </p>
+                            </form>
+                            </td>
+                        </tr>
+                   </table>
+               {% else %}
+                   <table class="price_wide">
+                       <tr>
+                           <td style="height: 100%;">
+
+                           </td>
+                       </tr>
+                   </table>
+               {% endif %}
+            </td>
+
+       </tr>
+    </table>
+</div>
+{% endif %}
+
+<!--My item and found items statistics -->
+<div>
+<table class="wide">
+
+    <tr>
+        <td class="left-column-wide">
+              <p class="green">Items in {{league}}</p>
+              <!--<p class="{{ item['item_type'].lower() }}">{{ item['name'] }}</p>-->
+
+              <!--<p>{{ item['item_base'] }}</p>-->
+              <!--{% if item['corrupted'] == True %}-->
+              <!--<p class="red">Corrupted</p>-->
+              <!--{% endif %}-->
+              <!--{% set imgshown = 0 %}-->
+              <!--{% if items %}-->
+                 <!--{% for it in items %}-->
+                    <!--{% if not imgshown and (('item_base' in it and 'item_base' in item and it['item_base'] == item['item_base']) or ('name' in it and 'name' in item and it['name'] == item['name'])) %}-->
+                        <!--<p><img src="{{ it['image_url'] }}"></p>-->
+                        <!--{% set imgshown = 1 %}-->
+                    <!--{% endif %}-->
+                 <!--{% endfor %}-->
+              <!--{% endif %}-->
+
+              <!--{% if 'identified' in item and not item['identified'] %}-->
+                 <!--<p class="red">Unidentified</p>-->
+              <!--{% endif %}-->
+              <!--{% if 'off_color' in item and item['off_color']>=4 %}-->
+                 <!--<p class="white">off_colors: {{ item['off_color'] }}</p>-->
+              <!--{% endif %}-->
+        </td>
+        <td colspan="2">
+              {% if not items%}
+                <p><span class="bold">No item found. Please widen the search criterion. </span></p>
+              {% endif %}
+              {% if 'builds' in item %}
+                <table align="center">
+                    <tr>
+                        <td>
+                            {% if ('item_type' in item and item['item_type'] == 'Unique') or ('searchbyname' in item and item['searchbyname'])%}
+                                {% set wiki = "http://pathofexile.gamepedia.com/Special:Search/" + item['name'] | replace("'", "%27") | replace(" ", "_") %}
+                                &nbsp;&nbsp;&nbsp;<a target="_blank" href="{{ wiki }}">[wiki]</a>&nbsp;&nbsp;&nbsp;
+                              {% endif %}
+                        </td>
+                        <td>
+                            <p><img id="buildimage" src="/css/Marauder_avatar.png"/></p>
+                        </td>
+                        <td>
+                            <table><tr></tr>
+                                <tr>
+                                    <td colspan="2" width="600px">
+                                        <p class="unique">Matched builds </p>
+                                        <p class="currency">(enabled, leveling, or mentioned)</p>
+                                    </td>
+                                </tr><tr></tr>
+                                <tr>
+                                    <td>
+                                        <p>
+                                            <span class="selectParent"><img src="/css/scroll-arrows.png" style="display: inline-block; vertical-align: middle;height=16px;width=16px;">
+                                            <select id="selectclass">
+                                            <option value="Marauder">Marauder</option>
+                                            <option value="Ranger">Ranger</option>
+                                            <option value="Witch">Witch</option>
+                                            <option value="Duelist">Duelist</option>
+                                            <option value="Templar">Templar</option>
+                                            <option value="Shadow">Shadow</option>
+                                            <option value="Scion">Scion</option>
+                                        </select></span></p>
+                                    </td>
+                                    <td>
+                                        <p>
+                                            <span class="selectParent"><img src="/css/scroll-arrows.png" style="display: inline-block; vertical-align: middle;height=16px;width=16px;">
+                                            <select id="builds">
+                                                <option value="">Select a build ...</option>
+                                                {% for build in item['builds'] %}
+                                                    <option value="{{ build['class'] }}" id="{{ build['href'] }}">{{ build['build'] }}</option>
+                                                {% endfor %}
+                                            </select></span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td>
+                            <p><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- price_single_item_middle --><ins class="adsbygoogle" style="display:inline-block;width:320px;height:100px" data-ad-client="ca-pub-2399404127652410" data-ad-slot="7059835289"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></p>
+                        </td>
+                    </tr>
+                </table>
+             {% else %}
+                <table align="center">
+                    <tr>
+                        <td>
+                            <p><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- ad2 --><ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-2399404127652410" data-ad-slot="1320252081"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></p>
+                        </td>
+                    </tr>
+                </table>
+             {% endif %}
+        </td>
+    </tr>
+
+   <!-- found items -->
+   <script type="text/javascript">
+        function submitform(mod)
+        {
+            var elem = document.getElementById("modtosort");
+            elem.value = mod;
+            document.getElementById("sortform").click();
+        }
+   </script>
+   <form action="/sort" method="POST">
+          <textarea cols="10" rows="50" style="display:none;" name="itemsfound_txt">{{items_txt}}</textarea>
+          <textarea cols="10" rows="50" style="display:none;" id = "modtosort" name="modtosort">{{mod}}</textarea>
+          <textarea cols="10" rows="20" style="display:none;" name="qitem_txt">{{qitem_txt}}</textarea>
+          <textarea cols="20" rows="20" style="display:none;" name="qitem_features_txt">{{qitem_features_txt}}</textarea>
+          <textarea cols="10" rows="1" style="display:none;" name="league">{{league}}</textarea>
+          <textarea cols="20" rows="50" style="display:none;" name="price_txt">{{price_txt}}</textarea>
+          <input id="sortform" type="submit" name="submit" value="Sort" style="display: none;">
+
+        {% set row_idx = [] %}{% set qitem = item %}
+
+        {% for idx in indicies if not items[idx]['hidden']%}
+
+         {% set item = items[idx] %}
+         {% if row_idx.__len__() == 0%}
+           {%if row_idx.append(1)%}{%endif%}
+         {% else%}
+           {%set row_idx = [] %}
+         {% endif %}
+        <tr>
+         <td class="left-column-wide" valign="top">
+          <p class="{{ item['item_type'].lower() }}">{{ item['name'] }}</p>
+          <p>{{ item['item_base'] }}</p>
+          {% if item['corrupted'] == True %}
+            <p><a class="corrupted" href="javascript: submitform('Corrupted')">Corrupted</a></p>
+          {% endif %}
+          <!--{% if item['verified'] == True %}-->
+            <!--<p><a class="verified" href="javascript: submitform('Verified')">Verified</a></p>-->
+          <!--{% else %}-->
+            <!--<p><a class="sold" href="javascript: submitform('Sold')">Sold</a></p>-->
+          <!--{% endif %}-->
+          {% if 'identified' in item and not item['identified'] %}
+             <p class="red">Unidentified</p>
+          {% endif %}
+          <br />
+          <img src="{{ item['image_url'] }}" height="{{ item['render_height'] }}" width="{{ item['render_width'] }}" />
+          {% if 'shaped' in item and item['shaped'] == True %}
+            <p><a class="verified">Shaped Item</a></p>
+          {% endif %}
+          {% if 'elder' in item and item['elder'] == True %}
+            <p><a class="verified">Elder Item</a></p>
+          {% endif %}
+           <!-- Calculated properties-->
+         </td>
+
+         <td class="middle-column-wide" valign="top">
+          <!-- PROPERTIES -->
+          <!--{% for property in item['properties'] %}
+          <p><span class="bold">{{ property }}</span>: {{ item['properties'][property] }}</p>
+          {% endfor %}-->
+
+          <!-- SOCKETS -->
+          {% if item['sockets'] %}
+          <p>
+           <a href="javascript: submitform('links')">
+           <span class="bold">Sockets</span>:
+           {% for s in item['sockets'] %}
+           {% if s == 'R' %}
+           <span class="red">{{ s }}</span>
+           {% elif s == 'G' %}
+           <span class="green">{{ s }}</span>
+           {% elif s == 'B' %}
+           <span class="blue">{{ s }}</span>
+           {% elif s == 'W' %}
+           <span class="white">{{ s }}</span>
+           {% elif s == ' ' %}
+           <span class="socket-separator"></span>
+           {% else %}
+           <span>{{ s }}</span>
+           {% endif %}
+           {% endfor %}
+           </a>
+          </p>
+          {% endif %}
+
+          <!-- IMPLICIT MODS -->
+          {%if item['implicit_mods'] %}
+           <hr />
+          {% set mod_idx = 0 %}
+          {% for mod in item['implicit_mods'] %}
+              {% if item['implicit_mods_nonum'][mod_idx] in qitem['implicit_mods_decomp'] or item['implicit_mods_nonum'][mod_idx] in qitem['explicit_mods_decomp'] %}
+                    <p><a href="javascript: submitform('{{mod}}')">{{ mod }}</a></p>
+              {% else %}
+                    <p><a class="newmod" href="javascript: submitform('{{mod}}')">{{ mod }}</a></p>
+              {% endif %}
+              {% set mod_idx = mod_idx + 1 %}
+          {% endfor %}
+          {%endif%}
+
+           <!-- EXPLICIT MODS -->
+          {%if item['explicit_mods'] %}
+           <hr />
+          {% set mod_idx = 0 %}
+          {% for mod in item['explicit_mods'] %}
+
+              {%set tiertag = '' %}
+              {%set presuf = '' %}
+              {% if 'qmods_tiers' in item and item['qmods_tiers']%}
+                {% set tiertag = item['qmods_tiers'][0][0][mod_idx][3] %}
+                {% set presuf = item['qmods_tiers'][0][0][mod_idx][2] %}
+              {% endif %}
+
+              {% if item['explicit_mods_nonum'][mod_idx] in qitem['implicit_mods_decomp'] or item['explicit_mods_nonum'][mod_idx] in qitem['explicit_mods_decomp'] %}
+                    <p><a href="javascript: submitform('{{mod}}')">{{ mod }}</a>
+                        {% if presuf %}
+                            {% if presuf == "Prefix" %}
+                                <span class="chaos">[{{presuf}} {{tiertag|replace("<br>", " or ")}}]</span>
+                            {% else %}
+                                <span class="life">[{{presuf}} {{tiertag|replace("<br>", " or ")}}]</span>
+                            {% endif %}
+                        {% endif %}
+                    </p>
+              {% else %}
+                    <p><a class="newmod" href="javascript: submitform('{{mod}}')">{{ mod }}</a>
+                        {% if presuf %}
+                            {% if presuf == "Prefix" %}
+                                <span class="chaos">[{{presuf}} {{tiertag|replace("<br>", " or ")}}]</span>
+                            {% else %}
+                                <span class="life">[{{presuf}} {{tiertag|replace("<br>", " or ")}}]</span>
+                            {% endif %}
+                        {% endif %}
+                    </p>
+              {% endif %}
+
+              {% set mod_idx = mod_idx + 1 %}
+          {% endfor %}
+          {%endif%}
+
+           <!-- Crafted MODS -->
+          {%if item['crafted_mods'] %}
+           <hr />
+          {% set mod_idx = 0 %}
+          {% for mod in item['crafted_mods'] %}
+              {% if item['crafted_mods_nonum'][mod_idx] in qitem['implicit_mods_decomp'] or item['crafted_mods_nonum'][mod_idx] in qitem['explicit_mods_decomp'] %}
+                    <p><a href="javascript: submitform('{{mod}}')">{{ '(crafted) ' + mod }}</a></p>
+              {% else %}
+                    <p><a class="newmod" href="javascript: submitform('{{mod}}')">{{ '(crafted) ' + mod }}</a></p>
+              {% endif %}
+              {% set mod_idx = mod_idx + 1 %}
+          {% endfor %}
+          {%endif%}
+
+          <!-- PRICE -->
+           {% if 'buyout' in item%}
+           <hr />
+            <a href="javascript: submitform('prices')">{{item['buyout']}}</a>
+           {%endif%}
+           {% if 'fixed_price' in item%}
+           <hr />
+            <a href="javascript: submitform('prices')">{{item['fixed_price']}}</a>
+           {%endif%}
+           {% if 'current_offer' in item%}
+           <hr />
+            <a href="javascript: submitform('prices')">{{item['current_offer']}}</a>
+           {%endif%}
+
+           {% if 'elasped_time' in item and item['elasped_time'] %}
+             &nbsp;<a class="pseudo" href="javascript: submitform('elasped_time')">{{item['elasped_time']}}</a>
+          {% endif %}
+
+           {%if 'IGN_UTF8' in item%}
+               &nbsp;IGN: {{item['IGN_UTF8']}}
+           {% endif %}
+           {%if 'lastCharacterName' in item%}
+               &nbsp;IGN: {{item['lastCharacterName']}}
+           {% endif %}
+           {%if 'shop_thread' in item%}
+                &nbsp;<a
+            href="http://www.pathofexile.com/forum/view-thread/{{item['shop_thread']
+            }}" target="_blank"><font color="FFFFE2">Go to shop</font></a>
+           {% endif %}
+
+           {% if 'intensity' in qitem and 'intensity' in item %}
+                {% if qitem['intensity'] >= item['intensity'] %} <!--under estimated, should increase-->
+                    <img title="Increase this Price" src="/css/arrow_up.gif">
+                {% else %}
+                    <img title="Decrease this Price" src="/css/arrow_down.png">  <!--over estimated, should lower down-->
+                {% endif %}
+             {% endif%}
+
+           {% if 'off_color' in item and item['off_color'] >=4 %}
+                <span class="white"> - This item has {{item['off_color']}} off color sockets</span>
+           {% endif %}
+
+         </td>
+
+         <td class="right-column-wide" valign="top">
+              {% set col_idx = [] %}
+              <table class="allitem_tb">
+              {% for property in item %}
+                 {% if property in ['pdps', 'edps', 'cdps', 'dps', 'Critical Strike Chance', 'Attacks per Second', 'Armour', 'Energy Shield', 'Chance to Block', 'Evasion Rating', 'Map Level', 'Item Quantity', 'Quality', 'Level', 'ilvl', 'Experience (%)'] %}
+                    {% if col_idx == [] %}
+                        <tr class="allitem_tr">
+                    {% endif %}
+                    {% if row_idx.__len__() == 1 %}
+                        <td class="allitem_td1">
+                    {% else %}
+                        <td class="allitem_td">
+                    {% endif %}
+                           <p><a href="javascript: submitform('{{property}}')"><span>{{ property }}</span><br/> {{ item[property] }}</a></p></td>
+                    {% if col_idx.append(1) %}{% endif %}
+                    {% if col_idx.__len__() == 4 %}
+                        {% set col_idx = [] %}
+                        </tr>
+                    {% endif %}
+                 {% endif %}
+              {% endfor %}
+
+              <!-- REQUIREMENTS -->
+              {% for key in item['requirements'] %}
+                   {% if col_idx == [] %}
+                        <tr class="allitem_tr">
+                   {% endif %}
+                   {% if row_idx.__len__() == 1 %}
+                        <td class="allitem_td1">
+                   {% else %}
+                        <td class="allitem_td">
+                   {% endif %}
+                          <p><a href="javascript: submitform('Required {{ key }}')"><span>Required {{ key }}</span><br/> {{ item['requirements'][key] }}</a></p></td>
+                      {% if col_idx.append(1) %}{% endif %}
+                   {% if col_idx.__len__() == 4 %}
+                        {% set col_idx = [] %}
+                        </tr>
+                   {% endif %}
+              {% endfor %}
+              </table>
+
+              <!-- PSEUDO MODS -->
+              {%if item['pseudo_mods'] %}
+               <h1>Pseudo mods</h1>
+              {% for mod in item['pseudo_mods'] %}
+              <p>
+               <span class="pseudo">
+                  <p><a class="pseudo" href="javascript: submitform('{{mod}}')">{{ mod }}</a></p>
+               </span>
+              </p>
+
+              {% endfor %}
+              {%endif%}
+         </td>
+
+         </form>
+        </tr>
+        {% endfor %}
+       <!--</table>-->
+
+   <!--</tr>-->
+   <tr style="height:30px;"></tr>
+</table>
+
+    <script type="text/javascript">
+      createDocumentStructure('h1');
+    </script>
+
+</div>
+ </body>
+</html>
