@@ -1,0 +1,21 @@
+{
+    "short_name": "POEPrices",
+    "name": "POE Prices",
+    "description": "A simple tool to price check your items in path of exile by copy and paste",
+    "icons": [
+        {
+            "src": "img/launcher-icon/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }, {
+            "src": "img/launcher-icon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "./?utm_source=web_app_manifest",
+    "theme_color": "#1a1b18",
+    "background_color": "#1a1b18",
+    "display": "standalone",
+    "orientation": "natural"
+}
