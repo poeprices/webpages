@@ -1,0 +1,29 @@
+{
+    "name": "poeprices",
+    "version": "1.0.0",
+    "description": "A simple tool to price check your items in path of exile by copy and paste",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/poeprices/webpages.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/poeprices/webpages/issues"
+    },
+    "homepage": "https://www.poeprices.info/",
+    "devDependencies": {
+        "browser-sync": "^2.18.13",
+        "del": "^3.0.0",
+        "gulp": "github:gulpjs/gulp#4.0",
+        "gulp-autoprefixer": "^4.0.0",
+        "gulp-concat": "^2.6.1",
+        "gulp-plumber": "^1.1.0",
+        "gulp-sass": "^3.1.0"
+    },
+    "dependencies": {}
+}
