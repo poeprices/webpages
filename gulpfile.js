@@ -4,6 +4,7 @@ const DIST_MODE = process.argv[process.argv.length-1] === 'dist';
 const gulp = require('gulp');
 const sass = require('gulp-sass');
 const concat = require('gulp-concat');
+const compress = require('compression');
 const bs = require('browser-sync').create();
 const plumber = require('gulp-plumber');
 const autoprefixer = require('gulp-autoprefixer');
@@ -77,7 +78,8 @@ function clean() {
 function serve(){
     bs.init({
         server: {
-            baseDir: 'public'
+            baseDir: 'public',
+            middleware: [compress()]
         },
         open: false
     });

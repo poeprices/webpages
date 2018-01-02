@@ -1,26 +1,36 @@
-$link-color: #F0BF3A;
-$link-color-hover: #fff;
-$primary-color: #1a1b18;
-$secondary-color: #20211E;
-$primary-text-color: #9e8d6d;
+$color-white: #FFFFFF;
+$color-gainsboro: #DDDDDD;
+$color-dark-vanilla: #CEC59F;
+$color-mustard: #FFDA4D;
+$color-charleston-green: #2A2A2A;
+$color-black: #000000;
+
+$link-color: $color-mustard;
+$link-color-hover: $color-white;
+$primary-color: $color-black;
+$secondary-color: $color-charleston-green;
+$primary-text-color: $color-gainsboro;
 
 
 body {
-    background: $primary-color;
+    background-color: $primary-color;
+    background: $primary-color url("/img/poe-bg.jpg") no-repeat top left;
+    background-size: cover;
     color: $primary-text-color;
     font-family: verdana, sans-serif;
 }
 
 a {
+    text-decoration: none;
     &,
     &:link,
     &:visited {
         color: $link-color;
-        text-decoration: none;
     }
     &:hover,
     &:active {
         color: $link-color-hover;
+        text-decoration: none;
     }
 }
 
@@ -32,6 +42,7 @@ header {
 .intro {
     background-color: $secondary-color;
     padding: 10px;
+    font-size: .8em;
     line-height: 1.5em;
     margin-bottom: 20px;
 
@@ -40,27 +51,57 @@ header {
     }
 }
 
-.menu {
-    ul {
+.comp-tab {
+    .tab-strip {
+        ul {
+            overflow: hidden;
+        }
+        li {
+            float: left;
+        }
+        a,
+        a:link,
+        a:visited {
+            display: block;
+            padding: 10px 15px;
+            margin: 0 3px;
+            font-size: .9em;
+            border-radius: 3px 3px 0 0;
+            background-color: $secondary-color;
+            color: $primary-text-color;
+        }
+        li.active a,
+        a:hover,
+        a:active {
+            //background-color: $secondary-color;
+            //color: $link-color;
+            background-color: $link-color;
+            color: $secondary-color;
+        }
+    }
+    .tab-content-container {
         background-color: $secondary-color;
-        border: solid 1px $secondary-color;
-    }
-    a {
-        display: block;
-        padding: 15px;
-
-        &:link,
-        &:visited,
-        &:hover,
-        &:active {
-            text-decoration: none;
-        }
-        &:hover {
-            background-color: $primary-color;
+        border-top: solid 5px $link-color;
+        >section {
+            display: none;
         }
     }
-}
-
-main section {
-    display: none;
+    &.vertical {
+        > .tab-strip {
+            li {
+                float: none;
+                display: block;
+            }
+            a {
+                padding: 15px;
+                margin: 0;
+                border-radius: 0;
+                font-size: 1em;
+            }
+        }
+        > .tab-content-container {
+            background-color: transparent;
+            border: none;
+        }
+    }
 }
