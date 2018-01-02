@@ -38,3 +38,10 @@ jspm_packages
 
 # Git
 .git
+
+# Package.json lock file
+package-lock.json
+
+# Experimental exclusion for poeprices
+public/*.*
+public/**/*.*
