@@ -15,6 +15,7 @@ $primary-text-color: $color-gainsboro;
 body {
     background-color: $primary-color;
     background: $primary-color url("/img/poe-bg.jpg") no-repeat top left;
+    background: $primary-color url("/img/galaxy/4056-small.jpg") no-repeat top left;
     background-size: cover;
     color: $primary-text-color;
     font-family: verdana, sans-serif;
@@ -41,6 +42,7 @@ header {
 
 .intro {
     background-color: $secondary-color;
+    background-color: rgba($secondary-color, .8);
     padding: 10px;
     font-size: .8em;
     line-height: 1.5em;
@@ -73,8 +75,6 @@ header {
         li.active a,
         a:hover,
         a:active {
-            //background-color: $secondary-color;
-            //color: $link-color;
             background-color: $link-color;
             color: $secondary-color;
         }
